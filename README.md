@@ -7,7 +7,7 @@ This app uses advanced cryptography to solve the problem! 🤓
 
 ## How it Works
 
-1. [Open the app](https://voltrevo.github.io/2pc-is-for-lovers).
+1. [Open the app](https://mpc.pse.dev/apps/2pc-is-for-lovers).
 2. Host a session.
 3. Get your friend to join.
 4. Choose love or friendship.
