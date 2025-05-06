@@ -1,6 +1,6 @@
 import z from 'zod';
 import * as mpcf from 'mpc-framework';
-import { EmpWasmBackend } from 'emp-wasm-backend';
+import { EmpWasmEngine } from 'emp-wasm-engine';
 import * as summon from 'summon-ts';
 import { RtcPairSocket } from 'rtc-pair-socket';
 import assert from './assert';
@@ -29,41 +29,35 @@ export default async function runProtocol(
 
   await summon.init();
 
-  const { circuit } = summon.compileBoolean('/src/main.ts', 1, {
-    '/src/main.ts': `
-      export default function main(a: number, b: number) {
-        return a & b;
-      }
-    `,
-  });
+  const { circuit } = summon.compile({
+    path: '/src/main.ts',
+    boolifyWidth: 8,
+    files: {
+      '/src/main.ts': `
+        export default (io: Summon.IO) => {
+          const aliceInLove = io.input('alice', 'aliceInLove', summon.bool());
+          const bobInLove = io.input('bob', 'bobInLove', summon.bool());
 
-  const mpcSettings = [
-    {
-      name: 'alice',
-      inputs: ['a'],
-      outputs: ['main'],
+          io.outputPublic('bothInLove', aliceInLove && bobInLove);
+        }
+      `,
     },
-    {
-      name: 'bob',
-      inputs: ['b'],
-      outputs: ['main'],
-    },
-  ];
+  });
 
   const protocol = new mpcf.Protocol(
     circuit,
-    mpcSettings,
-    new EmpWasmBackend(),
+    new EmpWasmEngine(),
   );
 
   const party = mode === 'Host' ? 'alice' : 'bob';
   const otherParty = mode === 'Host' ? 'bob' : 'alice';
 
-  const input = choice === '😍' ? 1 : 0;
+  const inLove = choice === '😍';
+  const inputName = `${party}InLove`;
 
   const session = protocol.join(
     party,
-    party === 'alice' ? { a: input } : { b: input },
+    { [inputName]: inLove },
     (to, msg) => {
       assert(to === otherParty);
       socket.send(msg);
@@ -86,7 +80,7 @@ export default async function runProtocol(
   });
 
   const Output = z.object({
-    main: z.number(),
+    bothInLove: z.boolean(),
   });
 
   const output = Output.parse(await session.output());
@@ -101,5 +95,5 @@ export default async function runProtocol(
     );
   }
 
-  return output.main ? '😍' : '🙂';
+  return output.bothInLove ? '😍' : '🙂';
 }
