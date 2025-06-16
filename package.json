@@ -16,7 +16,7 @@
     "base64url": "^3.0.1",
     "bs58": "^5.0.0",
     "buffer": "^6.0.3",
-    "emp-wasm-engine": "^0.5.2",
+    "emp-wasm-engine": "^0.5.3",
     "events": "^3.3.0",
     "keccak256": "^1.0.6",
     "mpc-framework": "^0.3.0",
@@ -26,7 +26,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.0",
     "rtc-pair-socket": "^0.1.7",
-    "summon-ts": "^0.6.0",
+    "summon-ts": "^0.6.1",
     "typed-emitter": "^2.1.0",
     "zod": "^3.23.5"
   },
